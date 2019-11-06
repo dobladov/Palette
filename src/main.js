@@ -42,10 +42,14 @@ pickButton.connect('clicked', () => {
 
 colorPicker.connect('newColor', (w, color) => {
   log(color.to_string())
+  label.set_text(color.to_string())
+  log(color.hash())
   colorBtn.set_rgba(color)
 })
 
+const label = new Gtk.Label({ label: 'Select a color' })
 const colorBtn = new Gtk.ColorButton()
+box.add(label)
 box.add(colorBtn)
 
 header.add(pickButton)
