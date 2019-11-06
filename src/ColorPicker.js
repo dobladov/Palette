@@ -25,6 +25,9 @@ var ColorPicker = GObject.registerClass({
     // Make it invisible
     this.set_visual(this.get_screen().get_rgba_visual())
 
+    // Add event for moving over the window
+    this.add_events(Gdk.EventMask.POINTER_MOTION_MASK)
+
     this.connect('motion-notify-event', (w, e) => {
       const [, x, y] = e.get_coords()
       const color = getColor(x, y)
