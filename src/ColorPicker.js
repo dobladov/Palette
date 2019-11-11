@@ -10,17 +10,20 @@ var ColorPicker = GObject.registerClass({
       param_types: [Gdk.RGBA]
     }
   }
-}, class Widget extends Gtk.Window {
+}, class ColorPicker extends Gtk.Window {
   _init () {
     super._init({
       type: Gtk.WindowType.POPUP,
       appPaintable: true,
       decorated: false,
       resizable: false,
-      vexpand: true,
       defaultHeight: 500,
       defaultWidth: 400
     })
+
+    // this.connect('show', () => {
+    //   log('show picker')
+    // })
 
     // Make it invisible
     this.set_visual(this.get_screen().get_rgba_visual())
@@ -43,7 +46,7 @@ var ColorPicker = GObject.registerClass({
     const screen = root.get_screen()
     const width = screen.get_width()
     const height = screen.get_height()
-    this.fullscreen()
+    // this.fullscreen()
     this.resize(width, height)
   }
 })

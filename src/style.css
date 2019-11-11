@@ -1,0 +1,18 @@
+.box {
+    padding: 10px;
+}
+
+
+.collection label {
+	padding: 10px 0;
+}
+
+/* .collection {
+	padding: 10px;
+	border-left: 3px solid orange; 
+}
+
+.collection label {
+	font-weight: bold;
+	padding: 10px 0;
+} */
