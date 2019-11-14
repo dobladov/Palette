@@ -1,0 +1,13 @@
+.box {
+    padding: 10px;
+}
+
+.collection {
+	padding-bottom:20px
+}
+
+.collection label {
+	padding: 10px 0;
+	margin-right: 10px;
+	font-weight: bold;
+}

@@ -10,23 +10,21 @@ var ColorPicker = GObject.registerClass({
       param_types: [Gdk.RGBA]
     }
   }
-}, class Widget extends Gtk.Window {
+}, class ColorPicker extends Gtk.Window {
   _init () {
     super._init({
       type: Gtk.WindowType.POPUP,
       appPaintable: true,
       decorated: false,
       resizable: false,
-      vexpand: true,
       defaultHeight: 500,
       defaultWidth: 400
     })
 
+    this.add_events(Gdk.EventMask.POINTER_MOTION_MASK)
+
     // Make it invisible
     this.set_visual(this.get_screen().get_rgba_visual())
-
-    // Add event for moving over the window
-    this.add_events(Gdk.EventMask.POINTER_MOTION_MASK)
 
     this.connect('motion-notify-event', (w, e) => {
       const [, x, y] = e.get_coords()
@@ -43,7 +41,6 @@ var ColorPicker = GObject.registerClass({
     const screen = root.get_screen()
     const width = screen.get_width()
     const height = screen.get_height()
-    this.fullscreen()
     this.resize(width, height)
   }
 })
