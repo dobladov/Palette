@@ -111,6 +111,7 @@ newCollectionAdd.connect('button_release_event', () => {
 })
 
 const history = new Category({ label: 'History', history: true })
+box.add(history)
 // const site = new Category({ label: 'Website Client' })
 
 // Set history colors
@@ -118,6 +119,22 @@ session.history.forEach(color => {
   const gtkColor = new Gdk.RGBA()
   gtkColor.parse(color)
   history.pushNewColor(gtkColor)
+})
+
+// Set saved palettes
+session.palettes.forEach(palette => {
+  const name = Object.keys(palette)[0]
+  const category = new Category({
+    label: name
+  })
+
+  palette[name].forEach(color => {
+    const gtkColor = new Gdk.RGBA()
+    gtkColor.parse(color)
+    category.pushNewColor(gtkColor)
+  })
+
+  box.add(category)
 })
 
 colorPicker.connect('newColor', (w, color) => {
@@ -144,7 +161,6 @@ box.get_style_context().add_class('box')
 
 box.add(label)
 // box.add(colorBtn)
-box.add(history)
 
 header.add(pickButton)
 header.add(newPaletteButton)
