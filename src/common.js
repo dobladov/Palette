@@ -1,5 +1,5 @@
 /* global imports */
-const { Gdk } = imports.gi
+const { Gdk, Gio } = imports.gi
 
 // eslint-disable-next-line no-unused-vars
 function getColor (x, y) {
@@ -17,4 +17,11 @@ function getColor (x, y) {
   const color = new Gdk.RGBA()
   color.parse(`rgba(${red}, ${green}, ${blue}, 1)`)
   return color
+}
+
+// eslint-disable-next-line no-unused-vars
+function readFile (filename) {
+  const file = Gio.file_new_for_path(filename)
+  const [, data] = file.load_contents(null)
+  return data
 }

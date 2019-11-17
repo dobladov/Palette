@@ -1,7 +1,7 @@
 /* global imports */
 const { Gtk, Gdk, GObject } = imports.gi
 
-var { getColor } = imports.src.common
+var { getColor } = imports.common
 
 // eslint-disable-next-line no-unused-vars
 var ColorPicker = GObject.registerClass({
