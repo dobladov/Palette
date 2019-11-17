@@ -148,8 +148,6 @@ colorPicker.connect('show', () => {
   currentCollection && currentBox.push(currentCollection.addColor())
 })
 
-box.get_style_context().add_class('box')
-
 header.add(pickButton)
 header.add(newPaletteButton)
 
