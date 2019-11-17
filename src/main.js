@@ -120,6 +120,7 @@ newPaletteButton.connect('clicked', () => {
 })
 
 const label = new Gtk.Label({ label: 'Select a color' })
+label.get_style_context().add_class('label')
 box.add(label)
 
 const history = new Category({ label: 'History', history: true })
