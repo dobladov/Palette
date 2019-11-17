@@ -15,43 +15,57 @@ var Category = GObject.registerClass({
 
     this.get_style_context().add_class('collection')
 
-    const vBox = new Gtk.Box()
-    this.colorsContainer = new Gtk.FlowBox()
-    // this.colorsContainer = new Gtk.Box()
-
     const header = new Gtk.HBox()
-    header.add(new Gtk.Label({
+    const headerLeft = new Gtk.HBox()
+    const headerRight = new Gtk.HBox()
+    this.colorsContainer = new Gtk.FlowBox()
+    header.add(headerLeft)
+    header.add(new Gtk.Alignment({
+      xscale: 1
+    }))
+    header.add(headerRight)
+
+    headerLeft.add(new Gtk.Label({
       label
     }))
 
     if (!history) {
-      const removeBtn = new Gtk.Button({
-        // label: 'remove'
-        image: new Gtk.Image({ icon_name: 'user-trash', icon_size: Gtk.IconSize.SMALL_TOOLBAR })
+      // Add Color button
+      const addColorBtn = new Gtk.Button({
+        image: new Gtk.Image({ icon_name: 'gtk-select-color', icon_size: Gtk.IconSize.SMALL_TOOLBAR })
       })
-
-      removeBtn.get_style_context().add_class(Gtk.STYLE_CLASS_FLAT)
-
-      removeBtn.connect('button_release_event', () => {
-        this.destroy()
-      })
-
-      header.add(removeBtn)
-      this.addColorButton = new Gtk.Button({
-        // label: 'Add',
-        image: new Gtk.Image({ icon_name: 'gtk-add', icon_size: Gtk.IconSize.SMALL_TOOLBAR })
-      })
-
-      this.addColorButton.get_style_context().add_class(Gtk.STYLE_CLASS_FLAT)
-
-      this.addColorButton.connect('clicked', () => {
+      addColorBtn.set_tooltip_text('Add color to this collection')
+      addColorBtn.get_style_context().add_class(Gtk.STYLE_CLASS_FLAT)
+      addColorBtn.connect('clicked', () => {
         this.emit('setCurrentCollection', this)
       })
-      header.add(this.addColorButton)
+      headerLeft.add(addColorBtn)
+
+      // Remove Button
+      const removeBtn = new Gtk.Button({
+        image: new Gtk.Image({ icon_name: 'user-trash', icon_size: Gtk.IconSize.SMALL_TOOLBAR })
+      })
+      removeBtn.get_style_context().add_class(Gtk.STYLE_CLASS_FLAT)
+      removeBtn.set_tooltip_text('Remove this collection')
+      removeBtn.connect('pressed', () => {
+        this.destroy()
+      })
+      headerRight.add(removeBtn)
     }
 
-    vBox.add(header)
-    this.add(vBox)
+    // Clear Button
+    const clearBtn = new Gtk.Button({
+      image: new Gtk.Image({ icon_name: 'edit-clear-all', icon_size: Gtk.IconSize.SMALL_TOOLBAR })
+    })
+    clearBtn.get_style_context().add_class(Gtk.STYLE_CLASS_FLAT)
+    clearBtn.set_tooltip_text('Clear all colors from this collection')
+    clearBtn.connect('pressed', () => {
+      this.colorsContainer.destroy()
+      this.colorsContainer = new Gtk.FlowBox()
+      this.add(this.colorsContainer)
+    })
+    headerRight.add(clearBtn)
+    this.add(header)
     this.add(this.colorsContainer)
 
     this.show_all()

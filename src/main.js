@@ -11,6 +11,7 @@ Gtk.init(null)
 imports.searchPath.unshift('.')
 const { ColorPicker } = imports.src.ColorPicker
 const { Category } = imports.src.Category
+const { NewPalletePopoverMenu } = imports.src.NewPalletePopoverMenu
 
 // Import CSS
 const css = new Gtk.CssProvider()
@@ -25,9 +26,12 @@ const file = Gio.File.new_for_path('./saved/data.json')
 const [, contents] = file.load_contents(null)
 const session = JSON.parse(contents)
 
+let currentBox
+let currentCollection
+
 const win = new Gtk.Window({
-  defaultHeight: 200,
   defaultWidth: 200,
+  defaultHeight: 300,
   title: 'Palette',
   gravity: Gdk.Gravity.CENTER
 })
@@ -56,63 +60,38 @@ const newPaletteButton = new Gtk.Button({
   useStock: true
 })
 
-const newPaletteMenu = new Gtk.PopoverMenu()
-const newCollectionName = new Gtk.Entry({
-  placeholderText: 'New collection name'
-})
-
-const newCollectionAdd = new Gtk.Button({
-  label: 'Add'
-})
-
-const newPaletteBox = new Gtk.Box({
-  spacing: 10,
-  name: 'box'
-})
-
-newPaletteBox.get_style_context().add_class('box')
-
-win.get_style_context()
-
-newPaletteBox.add(newCollectionName)
-newPaletteBox.add(newCollectionAdd)
-newPaletteMenu.add(newPaletteBox)
-newPaletteMenu.set_relative_to(newPaletteButton)
-
 pickButton.connect('clicked', () => {
   currentCollection = null
   colorPicker.show_all()
 })
 
-newPaletteButton.connect('clicked', () => {
-  log('create new palette')
-  newPaletteMenu.set_relative_to(newPaletteButton)
-  newPaletteMenu.show_all()
-  newPaletteMenu.popup()
+const newPalletePopoverMenu = new NewPalletePopoverMenu({
+  parent: newPaletteButton
 })
 
-newCollectionName.connect('changed', () => {
-  const text = newCollectionName.get_text()
-  text
-    ? newCollectionAdd.get_style_context().add_class(Gtk.STYLE_CLASS_SUGGESTED_ACTION)
-    : newCollectionAdd.get_style_context().remove_class(Gtk.STYLE_CLASS_SUGGESTED_ACTION)
-})
+newPalletePopoverMenu.connect('createNewCollection', (widget, name) => {
+  const category = new Category({
+    label: name
+  })
 
-newCollectionAdd.connect('button_release_event', () => {
-  const cat = new Category({ label: newCollectionName.get_text() })
-  newCollectionName.set_text('')
-  cat.connect('setCurrentCollection', (collection) => {
+  category.connect('setCurrentCollection', (collection) => {
     log('set collection')
     currentCollection = collection
     colorPicker.show_all()
   })
-  box.add(cat)
-  newPaletteMenu.popdown()
+  box.add(category)
 })
+
+newPaletteButton.connect('clicked', () => {
+  log('create new palette')
+  newPalletePopoverMenu.open()
+})
+
+const label = new Gtk.Label({ label: 'Select a color' })
+box.add(label)
 
 const history = new Category({ label: 'History', history: true })
 box.add(history)
-// const site = new Category({ label: 'Website Client' })
 
 // Set history colors
 session.history.forEach(color => {
@@ -134,6 +113,12 @@ session.palettes.forEach(palette => {
     category.pushNewColor(gtkColor)
   })
 
+  category.connect('setCurrentCollection', (collection) => {
+    log('set collection')
+    currentCollection = collection
+    colorPicker.show_all()
+  })
+
   box.add(category)
 })
 
@@ -146,8 +131,6 @@ colorPicker.connect('newColor', (w, color) => {
   currentBox.forEach(box => box.set_rgba(color))
 })
 
-let currentBox
-let currentCollection
 colorPicker.connect('show', () => {
   // log('showshow')
   currentBox = []
@@ -155,12 +138,7 @@ colorPicker.connect('show', () => {
   currentCollection && currentBox.push(currentCollection.addColor())
 })
 
-const label = new Gtk.Label({ label: 'Select a color' })
-// const colorBtn = new Gtk.ColorButton()
 box.get_style_context().add_class('box')
-
-box.add(label)
-// box.add(colorBtn)
 
 header.add(pickButton)
 header.add(newPaletteButton)
