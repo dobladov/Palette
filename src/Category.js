@@ -1,5 +1,5 @@
 /* global imports */
-const { Gtk, GObject } = imports.gi
+const { Gtk, Gdk, GObject } = imports.gi
 
 const { readFile } = imports.common
 
@@ -13,6 +13,11 @@ var Category = GObject.registerClass({
     createNewCollection: {
       param_types: [
         GObject.String,
+        GObject.String
+      ]
+    },
+    setColor: {
+      param_types: [
         GObject.String
       ]
     }
@@ -50,10 +55,10 @@ var Category = GObject.registerClass({
       })
     } else {
       this.pickBtn.destroy()
-      this.duplicateBtn.destroy()
       this.deleteBtn.destroy()
       this.duplicateBtn.destroy()
     }
+    this.exportBtn.destroy()
 
     // Clear Button
     this.clearBtn.connect('pressed', () => {
@@ -61,16 +66,6 @@ var Category = GObject.registerClass({
       this.colorsContainer = new Gtk.FlowBox()
       this.categoryTemplate.add(this.colorsContainer)
     })
-  }
-
-  addColor (color) {
-    // const area = Gtk.DrawingArea()
-    // area.set_size_request(24, 24)
-    const colorBtn = new Gtk.ColorButton()
-    // colorBtn.set_rgba(color)
-    this.colorsContainer.add(colorBtn)
-    this.colorsContainer.show_all()
-    return colorBtn
   }
 
   getColors () {
@@ -83,7 +78,21 @@ var Category = GObject.registerClass({
 
   pushNewColor (color) {
     const colorBtn = new Gtk.ColorButton()
-    colorBtn.set_rgba(color)
+    if (color) {
+      colorBtn.set_rgba(color)
+    }
+    colorBtn.connect('button_release_event', (widget, e) => {
+      const [, button] = e.get_button()
+      if (button === 3) {
+        const clipboard = Gtk.Clipboard.get_default(Gdk.Display.get_default())
+        const color = colorBtn.get_rgba().to_string()
+        clipboard.set_text(color, -1)
+        this.emit('setColor', color)
+        return false
+      }
+    })
     this.colorsContainer.add(colorBtn)
+    this.colorsContainer.show_all()
+    return colorBtn
   }
 })

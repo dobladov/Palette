@@ -56,6 +56,10 @@ const addNewCategory = ({ name, colors = [] }) => {
     colorPicker.show_all()
   })
 
+  category.connect('setColor', (widget, color) => {
+    label.set_label(color)
+  })
+
   category.connect('createNewCollection', (widget, name, colors) => {
     addNewCategory({ name, colors: JSON.parse(colors) })
   })
@@ -119,6 +123,9 @@ const label = new Gtk.Label({ label: 'Select a color' })
 box.add(label)
 
 const history = new Category({ label: 'History', history: true })
+history.connect('setColor', (widget, color) => {
+  label.set_label(color)
+})
 box.add(history)
 
 // Set history colors
@@ -144,8 +151,8 @@ colorPicker.connect('newColor', (w, color) => {
 
 colorPicker.connect('show', () => {
   currentBox = []
-  currentBox.push(history.addColor())
-  currentCollection && currentBox.push(currentCollection.addColor())
+  currentBox.push(history.pushNewColor())
+  currentCollection && currentBox.push(currentCollection.pushNewColor())
 })
 
 header.add(pickButton)
