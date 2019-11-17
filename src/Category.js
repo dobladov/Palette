@@ -1,12 +1,14 @@
 /* global imports */
 const { Gtk, GObject } = imports.gi
 
+const { readFile } = imports.common
+
 // eslint-disable-next-line no-unused-vars
 var Category = GObject.registerClass({
   GTypeName: 'Category',
   Signals: {
     setCurrentCollection: {
-      param_types: [Gtk.VBox]
+      param_types: [Gtk.Box]
     },
     createNewCollection: {
       param_types: [
@@ -14,78 +16,51 @@ var Category = GObject.registerClass({
         GObject.String
       ]
     }
-  }
-}, class Category extends Gtk.VBox {
+  },
+  Children: [
+    'categoryTemplate',
+    'categoryName',
+    'pickBtn',
+    'duplicateBtn',
+    'exportBtn',
+    'clearBtn',
+    'deleteBtn',
+    'colorsContainer'
+  ],
+  Template: readFile('src/templates/Category.glade')
+}, class Category extends Gtk.Box {
   _init ({ label, history }) {
     super._init()
 
-    this.get_style_context().add_class('collection')
+    this.categoryName.set_label(label)
 
-    const header = new Gtk.HBox()
-    const headerLeft = new Gtk.HBox()
-    const headerRight = new Gtk.HBox()
-    this.colorsContainer = new Gtk.FlowBox()
-    header.add(headerLeft)
-    header.add(new Gtk.Alignment({
-      xscale: 1
-    }))
-    header.add(headerRight)
-
-    headerLeft.add(new Gtk.Label({
-      label
-    }))
+    this.add(this.categoryTemplate)
 
     if (!history) {
-      // Add Color button
-      const addColorBtn = new Gtk.Button({
-        image: new Gtk.Image({ icon_name: 'gtk-select-color', icon_size: Gtk.IconSize.SMALL_TOOLBAR })
+      this.pickBtn.connect('clicked', () => {
+        this.emit('setCurrentCollection', this.categoryTemplate)
       })
-      addColorBtn.set_tooltip_text('Add color to this collection')
-      addColorBtn.get_style_context().add_class(Gtk.STYLE_CLASS_FLAT)
-      addColorBtn.connect('clicked', () => {
-        this.emit('setCurrentCollection', this)
-      })
-      headerLeft.add(addColorBtn)
 
-      // Duplicate category button
-      const duplicateCategoryBtn = new Gtk.Button({
-        image: new Gtk.Image({ icon_name: 'edit-copy', icon_size: Gtk.IconSize.SMALL_TOOLBAR })
-      })
-      duplicateCategoryBtn.set_tooltip_text('Duplicate this collection')
-      duplicateCategoryBtn.get_style_context().add_class(Gtk.STYLE_CLASS_FLAT)
-      duplicateCategoryBtn.connect('clicked', () => {
+      this.duplicateBtn.connect('clicked', () => {
         this.emit('createNewCollection', label, JSON.stringify(this.getColors()))
       })
-      headerRight.add(duplicateCategoryBtn)
 
-      // Remove Button
-      const removeBtn = new Gtk.Button({
-        image: new Gtk.Image({ icon_name: 'user-trash', icon_size: Gtk.IconSize.SMALL_TOOLBAR })
-      })
-      removeBtn.get_style_context().add_class(Gtk.STYLE_CLASS_FLAT)
-      removeBtn.set_tooltip_text('Remove this collection')
-      removeBtn.connect('pressed', () => {
+      this.deleteBtn.connect('pressed', () => {
         this.destroy()
       })
-      headerRight.add(removeBtn)
+    } else {
+      this.pickBtn.destroy()
+      this.duplicateBtn.destroy()
+      this.deleteBtn.destroy()
+      this.duplicateBtn.destroy()
     }
 
     // Clear Button
-    const clearBtn = new Gtk.Button({
-      image: new Gtk.Image({ icon_name: 'edit-clear-all', icon_size: Gtk.IconSize.SMALL_TOOLBAR })
-    })
-    clearBtn.get_style_context().add_class(Gtk.STYLE_CLASS_FLAT)
-    clearBtn.set_tooltip_text('Clear all colors from this collection')
-    clearBtn.connect('pressed', () => {
+    this.clearBtn.connect('pressed', () => {
       this.colorsContainer.destroy()
       this.colorsContainer = new Gtk.FlowBox()
-      this.add(this.colorsContainer)
+      this.categoryTemplate.add(this.colorsContainer)
     })
-    headerRight.add(clearBtn)
-    this.add(header)
-    this.add(this.colorsContainer)
-
-    this.show_all()
   }
 
   addColor (color) {

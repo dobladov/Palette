@@ -1,11 +1,7 @@
 /* global imports */
 const { Gtk, GObject, Gio } = imports.gi
 
-function readFile (filename) {
-  const file = Gio.file_new_for_path(filename)
-  const [, data] = file.load_contents(null)
-  return data
-}
+const { readFile } = imports.common
 
 // eslint-disable-next-line no-unused-vars
 var NewPalletePopoverMenu = GObject.registerClass({
@@ -15,7 +11,7 @@ var NewPalletePopoverMenu = GObject.registerClass({
     }
   },
   Children: ['popover', 'newCollectionName', 'newCollectionAdd'],
-  Template: readFile('src/newPalettePopoverMenu.glade')
+  Template: readFile('src/templates/newPalettePopoverMenu.glade')
 }, class NewPalletePopoverMenu extends Gtk.PopoverMenu {
   _init ({ parent }) {
     super._init()
