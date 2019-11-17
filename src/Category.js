@@ -3,10 +3,16 @@ const { Gtk, GObject } = imports.gi
 
 // eslint-disable-next-line no-unused-vars
 var Category = GObject.registerClass({
-  // GTypeName: 'Category',
+  GTypeName: 'Category',
   Signals: {
     setCurrentCollection: {
       param_types: [Gtk.VBox]
+    },
+    createNewCollection: {
+      param_types: [
+        GObject.String,
+        GObject.String
+      ]
     }
   }
 }, class Category extends Gtk.VBox {
@@ -40,6 +46,17 @@ var Category = GObject.registerClass({
         this.emit('setCurrentCollection', this)
       })
       headerLeft.add(addColorBtn)
+
+      // Duplicate category button
+      const duplicateCategoryBtn = new Gtk.Button({
+        image: new Gtk.Image({ icon_name: 'edit-copy', icon_size: Gtk.IconSize.SMALL_TOOLBAR })
+      })
+      duplicateCategoryBtn.set_tooltip_text('Duplicate this collection')
+      duplicateCategoryBtn.get_style_context().add_class(Gtk.STYLE_CLASS_FLAT)
+      duplicateCategoryBtn.connect('clicked', () => {
+        this.emit('createNewCollection', label, JSON.stringify(this.getColors()))
+      })
+      headerRight.add(duplicateCategoryBtn)
 
       // Remove Button
       const removeBtn = new Gtk.Button({
@@ -79,6 +96,14 @@ var Category = GObject.registerClass({
     this.colorsContainer.add(colorBtn)
     this.colorsContainer.show_all()
     return colorBtn
+  }
+
+  getColors () {
+    const colors = []
+    this.colorsContainer.get_children().map(colorButton => {
+      colors.push(colorButton.get_children()[0].get_rgba().to_string())
+    })
+    return colors
   }
 
   pushNewColor (color) {

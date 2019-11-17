@@ -26,6 +26,33 @@ const file = Gio.File.new_for_path('./saved/data.json')
 const [, contents] = file.load_contents(null)
 const session = JSON.parse(contents)
 
+const addNewCategory = ({ name, colors = [] }) => {
+  const category = new Category({
+    label: name
+  })
+
+  colors.forEach(color => {
+    log('new')
+    log(color)
+    const gtkColor = new Gdk.RGBA()
+    gtkColor.parse(color)
+    category.pushNewColor(gtkColor)
+  })
+
+  category.connect('setCurrentCollection', (collection) => {
+    log('set collection')
+    currentCollection = collection
+    colorPicker.show_all()
+  })
+
+  category.connect('createNewCollection', (widget, name, colors) => {
+    addNewCategory({ name, colors: JSON.parse(colors) })
+  })
+
+  box.add(category)
+  category.show_all()
+}
+
 let currentBox
 let currentCollection
 
@@ -70,16 +97,7 @@ const newPalletePopoverMenu = new NewPalletePopoverMenu({
 })
 
 newPalletePopoverMenu.connect('createNewCollection', (widget, name) => {
-  const category = new Category({
-    label: name
-  })
-
-  category.connect('setCurrentCollection', (collection) => {
-    log('set collection')
-    currentCollection = collection
-    colorPicker.show_all()
-  })
-  box.add(category)
+  addNewCategory({ name })
 })
 
 newPaletteButton.connect('clicked', () => {
@@ -103,23 +121,7 @@ session.history.forEach(color => {
 // Set saved palettes
 session.palettes.forEach(palette => {
   const name = Object.keys(palette)[0]
-  const category = new Category({
-    label: name
-  })
-
-  palette[name].forEach(color => {
-    const gtkColor = new Gdk.RGBA()
-    gtkColor.parse(color)
-    category.pushNewColor(gtkColor)
-  })
-
-  category.connect('setCurrentCollection', (collection) => {
-    log('set collection')
-    currentCollection = collection
-    colorPicker.show_all()
-  })
-
-  box.add(category)
+  addNewCategory({ name, colors: palette[name] })
 })
 
 colorPicker.connect('newColor', (w, color) => {
