@@ -1,5 +1,5 @@
 /* global imports */
-const { Gtk, GObject, Gio } = imports.gi
+const { Gtk, GObject } = imports.gi
 
 const { readFile } = imports.common
 
