@@ -7,11 +7,25 @@ imports.gi.versions.Gdk = '3.0'
 const { Gtk, Gdk, Gio } = imports.gi
 Gtk.init(null)
 
-// TODO: refactor to use import starting the command from any folder
-imports.searchPath.unshift('.')
-const { ColorPicker } = imports.src.ColorPicker
-const { Category } = imports.src.Category
-const { NewPalletePopoverMenu } = imports.src.NewPalletePopoverMenu
+// Import files
+function getAppFileInfo () {
+  const stack = (new Error()).stack
+  const stackLine = stack.split('\n')[1]
+  if (!stackLine) throw new Error('Could not find current file (1)')
+
+  const coincidence = new RegExp('@(.+):\\d+').exec(stackLine)
+  if (!coincidence) throw new Error('Could not find current file (2)')
+
+  const path = coincidence[1]
+  const file = Gio.File.new_for_path(path)
+  return [file.get_path(), file.get_parent().get_path(), file.get_basename()]
+}
+const path = getAppFileInfo()[1]
+imports.searchPath.push(path)
+
+const { ColorPicker } = imports.ColorPicker
+const { Category } = imports.Category
+const { NewPalletePopoverMenu } = imports.NewPalletePopoverMenu
 
 // Import CSS
 const css = new Gtk.CssProvider()
@@ -32,15 +46,12 @@ const addNewCategory = ({ name, colors = [] }) => {
   })
 
   colors.forEach(color => {
-    log('new')
-    log(color)
     const gtkColor = new Gdk.RGBA()
     gtkColor.parse(color)
     category.pushNewColor(gtkColor)
   })
 
   category.connect('setCurrentCollection', (collection) => {
-    log('set collection')
     currentCollection = collection
     colorPicker.show_all()
   })
@@ -101,7 +112,6 @@ newPalletePopoverMenu.connect('createNewCollection', (widget, name) => {
 })
 
 newPaletteButton.connect('clicked', () => {
-  log('create new palette')
   newPalletePopoverMenu.open()
 })
 
@@ -118,7 +128,7 @@ session.history.forEach(color => {
   history.pushNewColor(gtkColor)
 })
 
-// Set saved palettes
+// // Set saved palettes
 session.palettes.forEach(palette => {
   const name = Object.keys(palette)[0]
   addNewCategory({ name, colors: palette[name] })
@@ -127,14 +137,12 @@ session.palettes.forEach(palette => {
 colorPicker.connect('newColor', (w, color) => {
   log(color.to_string())
   label.set_text(color.to_string())
-  log(color.hash())
   // cs.set_currrsent_rgba(color)
   // colorBtn.set_rgba(color)
   currentBox.forEach(box => box.set_rgba(color))
 })
 
 colorPicker.connect('show', () => {
-  // log('showshow')
   currentBox = []
   currentBox.push(history.addColor())
   currentCollection && currentBox.push(currentCollection.addColor())
