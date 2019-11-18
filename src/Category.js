@@ -2,6 +2,7 @@
 const { Gtk, Gdk, GObject } = imports.gi
 
 const { readFile } = imports.common
+const { ColorView } = imports.ColorView
 
 // eslint-disable-next-line no-unused-vars
 var Category = GObject.registerClass({
@@ -77,22 +78,26 @@ var Category = GObject.registerClass({
   }
 
   pushNewColor (color) {
-    const colorBtn = new Gtk.ColorButton()
-    if (color) {
-      colorBtn.set_rgba(color)
-    }
-    colorBtn.connect('button_release_event', (widget, e) => {
-      const [, button] = e.get_button()
-      if (button === 3) {
-        const clipboard = Gtk.Clipboard.get_default(Gdk.Display.get_default())
-        const color = colorBtn.get_rgba().to_string()
-        clipboard.set_text(color, -1)
-        this.emit('setColor', color)
-        return false
-      }
-    })
-    this.colorsContainer.add(colorBtn)
+    const colorView = new ColorView({ colorValue: color })
+    // const colorBtn = new Gtk.ColorButton()
+    // if (color) {
+    //   colorBtn.set_rgba(color)
+    // }
+    // colorBtn.connect('button_release_event', (widget, e) => {
+    //   const [, button] = e.get_button()
+    //   if (button === 3 || button === 1) {
+    //     const clipboard = Gtk.Clipboard.get_default(Gdk.Display.get_default())
+    //     const color = colorBtn.get_rgba().to_string()
+    //     clipboard.set_text(color, -1)
+    //     this.emit('setColor', color)
+    //     return false
+    //   }
+    // })
+    // this.colorsContainer.add(colorBtn)
+    // this.colorsContainer.show_all()
+    this.colorsContainer.add(colorView)
     this.colorsContainer.show_all()
-    return colorBtn
+    // return colorBtn
+    return colorView
   }
 })
